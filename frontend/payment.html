@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Make a Payment</title>
+    <link rel="stylesheet" href="css/style.css">
+
+
+</head>
+
+<body>
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+
+
+        <ul class="nav-links">
+            <li><a class="active" href="payment.html">Payment</a></li>
+            <li><a href="profile.html">Profile</a></li>
+            <li><a href="history.html">History</a></li>
+        </ul>
+
+        <div class="nav-right">
+            <span id="welcomeUser"></span>
+            <button onclick="logout()">Logout</button>
+        </div>
+
+    </div>
+
+
+    <!-- PAYMENT SECTION -->
+    <div class="container">
+
+        <h2>Initiate Payment</h2>
+
+        <input type="number" id="payAmount" placeholder="Enter Amount (INR)" min="1">
+
+        <button id="rzp-button1">Pay Now</button>
+
+    </div>
+
+
+    <!-- SCRIPTS -->
+    <script src="js/auth.js"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script src="js/checkout.js"></script>
+</body>
+
+</body>
+
+</html>

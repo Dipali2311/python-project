@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <div class="navbar">
+
+        <ul class="nav-links">
+            <li><a href="payment.html">Payment</a></li>
+            <li><a class="active" href="profile.html">Profile</a></li>
+            <li><a href="history.html">History</a></li>
+        </ul>
+
+        <div class="nav-right">
+            <span id="welcomeUser"></span>
+            <button onclick="logout()">Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Update Profile</h2>
+
+        <form id="profileForm">
+            <div style="text-align: left;">
+                <label style="font-weight: 600; font-size: 14px; color: var(--text-muted);">Full Name</label>
+                <input type="text" id="profileName" placeholder="Enter your full name" required>
+
+                <label style="font-weight: 600; font-size: 14px; color: var(--text-muted);">Email Address</label>
+                <input type="email" id="profileEmail" placeholder="Enter your email" required>
+            </div>
+
+            <button type="submit" id="updateBtn">Update Details</button>
+        </form>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        /**
+         * INITIALIZATION
+         * Load the user's current profile data using Cookies.
+         */
+        async function loadProfile() {
+            try {
+
+                const response = await fetch("http://127.0.0.1:5000/api/profile", {
+                    method: "GET",
+                    credentials: "include" // Tells browser to send the JWT cookie
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+
+                    document.getElementById("profileName").value = data.name;
+                    document.getElementById("profileEmail").value = data.email;
+                } else if (response.status === 401) {
+
+                    window.location.href = "index.html";
+                }
+            } catch (error) {
+                console.error("Critical error fetching profile:", error);
+            }
+        }
+
+        /**
+         * PROFILE UPDATE HANDLER
+         * Includes the fix for duplicate emails and Cookie-based Auth.
+         */
+        document.getElementById("profileForm").addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const updateBtn = document.getElementById("updateBtn");
+            const nameValue = document.getElementById("profileName").value;
+            const emailValue = document.getElementById("profileEmail").value;
+
+            // Visual feedback
+            updateBtn.innerText = "Saving...";
+            updateBtn.disabled = true;
+
+            try {
+                const response = await fetch("http://127.0.0.1:5000/api/profile/update", {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    credentials: "include", // Send JWT cookie
+                    body: JSON.stringify({
+                        name: nameValue,
+                        email: emailValue
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // 1. Update UI-only storage (name for navbar)
+                    localStorage.setItem("user_name", nameValue);
+
+                    // 2. Update the Navbar Welcome Message immediately
+                    const welcomeSpan = document.getElementById("welcomeUser");
+                    if (welcomeSpan) {
+                        welcomeSpan.innerText = `Hello, ${nameValue}`;
+                    }
+
+                    alert("Profile updated successfully!");
+                } else {
+                    // This will now correctly alert "Email already in use" 
+
+                    alert(data.message || "Failed to update profile.");
+                }
+
+            } catch (error) {
+                console.error("Critical error during profile update:", error);
+                alert("An error occurred. Please try again.");
+            } finally {
+                updateBtn.innerText = "Update Details";
+                updateBtn.disabled = false;
+            }
+        });
+
+        // Initialize profile on page load
+        document.addEventListener("DOMContentLoaded", loadProfile);
+    </script>
+
+</body>
+
+</html>
